@@ -1,0 +1,49 @@
+"""
+URL configuration for core project.
+
+The `urlpatterns` list routes URLs to views. For more information please see:
+    https://docs.djangoproject.com/en/4.2/topics/http/urls/
+Examples:
+Function views
+    1. Add an import:  from my_app import views
+    2. Add a URL to urlpatterns:  path('', views.home, name='home')
+Class-based views
+    1. Add an import:  from other_app.views import Home
+    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
+Including another URLconf
+    1. Import the include() function: from django.urls import include, path
+    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
+"""
+from django.contrib import admin
+from django.urls import path
+from app.views import *
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+   path('api/roles/', RoleListCreateView.as_view(), name='role-list-create'),
+    path('api/roles/<int:pk>/', RoleDetailView.as_view(), name='role-detail'),
+    path('api/users/', UserListCreateView.as_view(), name='user-list-create'),
+    path('api/users/<int:pk>/', UserDetailView.as_view(), name='user-detail'),
+    path('api/viloyats/', ViloyatListCreateView.as_view(), name='viloyat-list-create'),
+    path('api/viloyats/<int:pk>/', ViloyatDetailView.as_view(), name='viloyat-detail'),
+    path('api/mchjs/', MCHJListCreateView.as_view(), name='mchj-list-create'),
+    path('api/mchjs/<int:pk>/', MCHJDetailView.as_view(), name='mchj-detail'),
+    path('api/xodimlars/', XodimlarListCreateView.as_view(), name='xodimlar-list-create'),
+    path('api/xodimlars/<int:pk>/', XodimlarDetailView.as_view(), name='xodimlar-detail'),
+    path('api/mchjusers/', MCHJUserListCreateView.as_view(), name='mchjuser-list-create'),
+    path('api/mchjusers/<int:pk>/', MCHJUserDetailView.as_view(), name='mchjuser-detail'),
+    path('api/types/', TypeListCreateView.as_view(), name='type-list-create'),
+    path('api/types/<int:pk>/', TypeDetailView.as_view(), name='type-detail'),
+    path('api/holats/', HolatListCreateView.as_view(), name='holat-list-create'),
+    path('api/holats/<int:pk>/', HolatDetailView.as_view(), name='holat-detail'),
+    path('api/instruments/', InstrumentListCreateView.as_view(), name='instrument-list-create'),
+    path('api/instruments/<int:pk>/', InstrumentDetailView.as_view(), name='instrument-detail'),
+    path('api/instruments/mchj/<int:mchj_id>/', Get_Instruments_Based_On_MCHJ.as_view(), name='get-instruments-based-on-mchj'),
+    path('api/mchjs/viloyat/<int:viloyat_id>/', Get_MCHJ_based_on_viloyat.as_view(), name='get-mchj-based-on-viloyat'),
+    path('api/counts/viloyat/<int:viloyat_id>/', Get_MCHJ_count_and_instruments_count_and_Xodimlar_count_based_on_viloyat.as_view(), name='get-counts-based-on-viloyat'),
+    path('api/counts/mchj/<int:mchj_id>/', GetCountsBasedOnMCHJ.as_view(), name='get-counts-based-on-mchj'),
+    path('api/counts/all/', GetAllCountsbasedMCHJ.as_view(), name='get-all-counts'),
+    path("api/get_all_mchj_all_infos/<int:viloyat_id>/",Get_MCHJ_and_counts_based_on_viloyat.as_view(),name='get-mchj-and-counts-based-on-viloyat'),
+    path('api/login/', LoginView.as_view(), name='login'),
+    path('api/ALLCOUNTS/', GetAllCounts.as_view(), name='all-counts'),
+]
