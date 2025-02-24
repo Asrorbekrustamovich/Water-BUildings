@@ -12,6 +12,7 @@ class User(models.Model):
     user_name_or_full_name=models.CharField(max_length=255)
     role=models.ForeignKey(Role,on_delete=models.CASCADE)#direktor, mchj, admin
     phone=models.CharField(max_length=255,null=True,blank=True)
+    adress=models.CharField(max_length=255,null=True,blank=True)
     class Meta:
         db_table = 'users'
 
@@ -94,3 +95,24 @@ class Instrument(models.Model):
 
     def __str__(self):
         return self.texnika_turi
+class Message(models.Model):
+    sender = models.ForeignKey(User, related_name='sent_messages', on_delete=models.CASCADE)
+    receiver = models.ForeignKey(User, related_name='received_messages', on_delete=models.CASCADE)
+    content = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'message'
+
+    def __str__(self):
+        return f"Message from {self.sender} to {self.receiver} at {self.timestamp}"
+class Notification(models.Model):
+    message = models.ForeignKey(Message, on_delete=models.CASCADE)
+    is_read = models.BooleanField(default=False)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'notification'
+
+    def __str__(self):
+        return f"Notification for message {self.message.id} - Read: {self.is_read}"
