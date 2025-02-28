@@ -54,3 +54,16 @@ class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notification
         fields = '__all__'
+from rest_framework import serializers
+from .models import User, MCHJUser, MCHJ
+
+class MCHJUserSerializer(serializers.ModelSerializer):
+    mchj_name = serializers.CharField(source='mchj.name', read_only=True)
+    user_name_or_full_name = serializers.CharField(source='user.user_name_or_full_name', read_only=True)
+    phone = serializers.CharField(source='user.phone', read_only=True)
+    address = serializers.CharField(source='mchj.address', read_only=True)
+    viloyat = serializers.CharField(source='mchj.viloyat.name', read_only=True)
+
+    class Meta:
+        model = MCHJUser
+        fields = ['mchj_name', 'user_name_or_full_name', 'phone', 'address', 'viloyat']

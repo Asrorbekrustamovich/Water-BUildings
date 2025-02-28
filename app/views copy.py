@@ -115,26 +115,19 @@ class MessageDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Message.objects.all()
     serializer_class = MessageSerializer
 
-class MessageDetailView1(generics.RetrieveUpdateDestroyAPIView):
+class MessageDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Message.objects.all()
     serializer_class = MessageSerializer
 
     def get_object(self):
-        # Retrieve the object using the parent class's method
         obj = super().get_object()
-        
-        # Get the role_id from the URL kwargs
-        role_id = self.kwargs.get('role_id')
-        
-        # Check if the role_id matches the sender's role_id or any other condition
-        if obj.sender.role_id != role_id:
+        user_id = self.kwargs['user_id']
+        if obj.sender_id != user_id:
             raise PermissionDenied("You do not have permission to modify this message.")
-        
         return obj
 class NotificationListCreateView(generics.ListCreateAPIView):
     queryset = Notification.objects.all()
     serializer_class = NotificationSerializer
-
 
 class NotificationDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Notification.objects.all()
@@ -331,6 +324,7 @@ class AdminSendMessageToMCHJView(generics.CreateAPIView):
         serializer = self.get_serializer(data=message_data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
+
         return Response(serializer.data, status=201)
 
 from rest_framework import generics
@@ -371,8 +365,6 @@ class MCHJSendMessageToAdminView(generics.CreateAPIView):
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
 
-        # Mark all notifications as read for the user bound to the mchj_id
-
         return Response(serializer.data, status=201)
 
     
@@ -390,99 +382,10 @@ class GetMessagesBetweenAdminAndMCHJ(APIView):
         ) | Message.objects.filter(
             sender__mchjuser__mchj_id=mchj_id, receiver_id=admin_user_id
         ).order_by('timestamp')
-        messages1 = Message.objects.filter(sender__mchjuser__mchj_id=mchj_id)
-        messages1.update(is_read=True)
-        serializer = MessageSerializer(messages, many=True)
-        return Response(serializer.data, status=200)
 
-class GetMessagesBetweenAdminAndMCHJ2(APIView):
-    def get(self, request, *args, **kwargs):
-        # Static admin user (replace with the actual admin user ID)
-        admin_user_id = 1  # Replace with the actual admin user ID
-
-        # Get the receiver's MCHJ ID from the URL
-        mchj_id = self.kwargs['mchj_id']
-
-        # Retrieve messages between the admin and the user bound to the mchj_id
-        messages = Message.objects.filter(
-            sender_id=admin_user_id, receiver__mchjuser__mchj_id=mchj_id
-        ) | Message.objects.filter(
-            sender__mchjuser__mchj_id=mchj_id, receiver_id=admin_user_id
-        ).order_by('timestamp')
-        messages1 = Message.objects.filter(receiver__mchjuser__mchj_id=mchj_id)
-        messages1.update(is_read=True)
         serializer = MessageSerializer(messages, many=True)
         return Response(serializer.data, status=200)
     
-class CountUnreadMessagesForAdminView(APIView):
-    def get(self, request):
-        # Assuming the admin user has a specific ID (e.g., 1)
-        admin_user_id = 1  # Replace with the actual admin user ID
-
-        # Count unread messages for the admin
-        unread_count = Message.objects.filter(receiver_id=admin_user_id, is_read=False).count()
-
-        return Response({"unread_message_count": unread_count}, status=200)
-
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from .models import Message, MCHJUser
-
-class CountUnreadMessagesForMCHJView(APIView):
-    def get(self, request, mchj_id):
-        # Get the MCHJUser associated with the given mchj_id
-        try:
-            mchj_user = MCHJUser.objects.get(mchj_id=mchj_id)
-        except MCHJUser.DoesNotExist:
-            return Response({"error": "MCHJUser not found for the given MCHJ ID"}, status=404)
-
-        # Get the user_id associated with the MCHJUser
-        user_id = mchj_user.user_id
-
-        # Count unread messages for this user
-        unread_count = Message.objects.filter(receiver_id=user_id, is_read=False).count()
-
-        return Response({"unread_message_count": unread_count}, status=200)
-    
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from .models import Message, MCHJUser
-
-class UnreadMessagesForMCHJView(APIView):
-    def get(self, request):
-        admin_id = 1  # Assuming admin ID is 1
-
-        # Get all unread messages where the receiver is the admin
-        unread_messages = Message.objects.filter(receiver_id=admin_id, is_read=False)
-
-        # Prepare response data with only message_id and mchj_id
-        response_data = []
-        for message in unread_messages:
-            mchj_user = MCHJUser.objects.filter(user_id=message.sender_id).first()
-            mchj_id = mchj_user.mchj_id if mchj_user else None
-
-            # Count unread messages from this MCHJ
-            counts = Message.objects.filter(
-                sender_id=message.sender_id,
-                receiver_id=admin_id,
-                is_read=False
-            ).count()
-
-            response_data.append({
-                "message_count_for_mchj_that_is_not_readed": counts,
-                "mchj_id": mchj_id
-            })
-
-        return Response(response_data, status=200)
-class MCHJUserListView(generics.ListAPIView):
-    serializer_class = MCHJUserSerializer
-
-    def get_queryset(self):
-        # Filter MCHJUser objects where the user's role ID is 34
-        queryset = MCHJUser.objects.filter(user__role_id=3).select_related('mchj__viloyat', 'user')
-        return queryset 
-
-
 class LoginView(APIView):
     def post(self, request):
         # Get login and password from the request data

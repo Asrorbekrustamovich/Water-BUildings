@@ -55,6 +55,11 @@ urlpatterns = [
     # path('messages/admin/<int:mchj_id>/', AdminMCHJMessagesView.as_view(), name='admin-mchj-messages'),
     path('api/messages/admin/send/<int:mchj_id>/', AdminSendMessageToMCHJView.as_view(), name='admin-send-message-to-mchj'),
     path('api/messages/mchj/send/<int:mchj_id>/', MCHJSendMessageToAdminView.as_view(), name='mchj-send-message-to-admin'),
-    path('api/messages/<int:pk>/<int:user_id>/', MessageDetailView.as_view(), name='message-detail'),
+    path('api/messages/<int:pk>/<int:role_id>/', MessageDetailView1.as_view(), name='message-detail'),
     path('api/GeTallmessagesbetweenMCHJandAdmin/admin/<int:mchj_id>/', GetMessagesBetweenAdminAndMCHJ.as_view(), name='admin-mchj-messages'),
+    path('api/GetMessagesBetweenAdminAndMCHJ/mchj/<int:mchj_id>/',GetMessagesBetweenAdminAndMCHJ2.as_view(),name='mchj-admin-messages'),
+    path('api/UnreadMessagesForMCHJView/',UnreadMessagesForMCHJView.as_view()),
+    path('api/CountUnreadMessagesForAdminView/',CountUnreadMessagesForAdminView.as_view()),
+    path('api/unread-messages-for-mchj/<int:mchj_id>/', CountUnreadMessagesForMCHJView.as_view(), name='unread-messages-for-mchj'),
+    path("api/mchj_boshliqlar_raqamlari/",MCHJUserListView.as_view())
     ]
