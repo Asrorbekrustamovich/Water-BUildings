@@ -17,7 +17,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from app.views import *
-
+from django.conf import settings
+from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
    path('api/roles/', RoleListCreateView.as_view(), name='role-list-create'),
@@ -61,5 +62,9 @@ urlpatterns = [
     path('api/UnreadMessagesForMCHJView/',UnreadMessagesForMCHJView.as_view()),
     path('api/CountUnreadMessagesForAdminView/',CountUnreadMessagesForAdminView.as_view()),
     path('api/unread-messages-for-mchj/<int:mchj_id>/', CountUnreadMessagesForMCHJView.as_view(), name='unread-messages-for-mchj'),
-    path("api/mchj_boshliqlar_raqamlari/",MCHJUserListView.as_view())
+    path("api/mchj_boshliqlar_raqamlari/",MCHJUserListView.as_view()),
+    path('api/documents/', DocumentListCreateView.as_view(), name='document-list-create'),
+    path('api/documents/<int:pk>/', DocumentRetrieveUpdateDestroyView.as_view(), name='document-retrieve-update-destroy'),
+    path('api/documents/user/<int:user_id>/', UserDocumentListView.as_view(), name='user-document-list')
     ]
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

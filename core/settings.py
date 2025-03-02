@@ -20,12 +20,20 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv("SECRET_KEY", "default-secret-key")
+SECRET_KEY = 'django-insecure-0(#_eceh&443hnpymk&uj3ntw3%us)h4+scv@ws(1oo789hnkw'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv("DEBUG", "False") == "True"
+DEBUG = True
 APPEND_SLASH=False
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "127.0.0.1").split(",")
+ALLOWED_HOSTS = ['*']
+CSRF_TRUSTED_ORIGINS = ['http://']
+
+# settings.py
+SECURE_SSL_REDIRECT = False
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = False
+
+
 ORS_ALLOW_CREDENTIALS = True  
 REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': [
@@ -43,7 +51,6 @@ CORS_ALLOW_METHODS = [
     "PUT",
 ]
 
-# Allowed headers (standard HTTP headers)
 CORS_ALLOW_HEADERS = [
     "accept",
     "accept-encoding",
@@ -71,6 +78,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'app',
     'django_filters',
+    'django_extensions',
 ]
 
 MIDDLEWARE = [
@@ -82,6 +90,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    
 ]
 
 ROOT_URLCONF = 'core.urls'
@@ -108,13 +117,12 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-import dj_database_url
-import os
-
 DATABASES = {
-    'default': dj_database_url.config(default=os.getenv('DATABASE_URL'))
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
 }
-
 
 
 # Password validation

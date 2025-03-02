@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, Group, Permission
-
+from django.utils import timezone
 class Role(models.Model):
     name=models.CharField(max_length=255)
     def __str__(self):
@@ -50,17 +50,6 @@ class MCHJUser(models.Model):
 
     def __str__(self):
         return self.mchj.name+' - '+self.user.user_name_or_full_name    
-
-#notification kerak
-#dockument saqlash model uchun kerak
-# class Type(models.Model):
-#     type_name = models.CharField(max_length=255)
-
-#     class Meta:
-#         db_table = 'type'
-
-#     def __str__(self):
-#         return self.type_name
 
 
 
@@ -116,3 +105,20 @@ class Notification(models.Model):
 
     def __str__(self):
         return f"Notification for message {self.message.id} - Read: {self.is_read}"
+class Document(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    file = models.FileField(upload_to='documents/')
+    original_name = models.CharField(max_length=255, editable=True)
+    custom_name = models.CharField(max_length=255, blank=True, null=True)
+    uploaded_at = models.DateTimeField(default=timezone.now)
+
+    def save(self, *args, **kwargs):
+        if not self.id:
+            self.original_name = self.file.name
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.custom_name if self.custom_name else self.original_name
+
+    class Meta:
+        db_table = 'document'

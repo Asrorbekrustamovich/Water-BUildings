@@ -1,6 +1,17 @@
 from rest_framework import serializers
 from .models import Role, User, viloyat, MCHJ, Xodimlar, MCHJUser, Holat, Instrument,Type,Message,Notification
+from .models import Document
 
+class DocumentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Document
+        fields = ['id', 'user', 'file', 'original_name', 'custom_name', 'uploaded_at']
+        read_only_fields = ['original_name', 'uploaded_at']
+
+    def create(self, validated_data):
+        validated_data['original_name'] = validated_data['file'].name
+        return super().create(validated_data)
+    
 class RoleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Role

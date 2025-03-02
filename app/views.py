@@ -1,6 +1,6 @@
 from rest_framework import generics
 from .models import *
-from .serializers import RoleSerializer, UserSerializer, ViloyatSerializer, MCHJSerializer, XodimlarSerializer, MCHJUserSerializer, HolatSerializer, InstrumentSerializer,TypeSerializer,MessageSerializer,NotificationSerializer
+from .serializers import RoleSerializer, UserSerializer, ViloyatSerializer, MCHJSerializer,DocumentSerializer, XodimlarSerializer, MCHJUserSerializer, HolatSerializer, InstrumentSerializer,TypeSerializer,MessageSerializer,NotificationSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.db.models import Count
@@ -14,7 +14,20 @@ class RoleListCreateView(generics.ListCreateAPIView):
 class RoleDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Role.objects.all()
     serializer_class = RoleSerializer
+class DocumentListCreateView(generics.ListCreateAPIView):
+    queryset = Document.objects.all()
+    serializer_class = DocumentSerializer
 
+class DocumentRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Document.objects.all()
+    serializer_class = DocumentSerializer
+
+class UserDocumentListView(generics.ListAPIView):
+    serializer_class = DocumentSerializer
+    def get_queryset(self):
+        user_id = self.kwargs['user_id']
+        return Document.objects.filter(user_id=user_id)
+    
 class UserListCreateView(generics.ListCreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
