@@ -7,10 +7,11 @@ from django.db.models import Count
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from rest_framework.exceptions import ValidationError
+from rest_framework.permissions import AllowAny
+from rest_framework_simplejwt.tokens import RefreshToken
 class RoleListCreateView(generics.ListCreateAPIView):
     queryset = Role.objects.all()
     serializer_class = RoleSerializer
-
 class RoleDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Role.objects.all()
     serializer_class = RoleSerializer
@@ -497,40 +498,94 @@ class MCHJUserListView(generics.ListAPIView):
 
 
 class LoginView(APIView):
-    def post(self, request):
-        # Get login and password from the request data
-        login = request.data.get('login')
-        password = request.data.get('password')
+     def post(self, request):
+         # Get login and password from the request data
+         login = request.data.get('login')
+         password = request.data.get('password')
 
-        # Check if either login or password is not provided
-        if not login or not password:
-            return Response({'error': 'Login va parol kiritish majburiy'}, status=400)
+         # Check if either login or password is not provided
+         if not login or not password:
+             return Response({'error': 'Login va parol kiritish majburiy'}, status=400)
 
-        # Try to find the user with the provided login and password
-        user = User.objects.filter(login=login, password=password).first()
+         # Try to find the user with the provided login and password
+         user = User.objects.filter(login=login, password=password).first()
 
-        # If user is not found, return an error message
-        if not user:
-            return Response({'error': 'Login yoki parol xato'}, status=400)
+         # If user is not found, return an error message
+         if not user:
+             return Response({'error': 'Login yoki parol xato'}, status=400)
 
-        # Check if the user has a special role (e.g., user.id == 1 or user.id == 2)
-        if user.id == 1 or user.id == 2:
-            response_data = {
-                'user_id': user.id,
-                'role_id': user.role.id,
-                'mchj_id': 0  # Special users might not be associated with an MCHJ
-            }
-        else:
-            # For regular users, get the associated MCHJUser and include the MCHJ ID
-            mchj_user = MCHJUser.objects.filter(user=user).first()
-            if not mchj_user:
-                return Response({'error': 'MCHJUser topilmadi'}, status=400)
+         # Check if the user has a special role (e.g., user.id == 1 or user.id == 2)
+         if user.id == 1 or user.id == 2:
+             response_data = {
+                 'user_id': user.id,
+                 'role_id': user.role.id,
+                 'mchj_id': 0  # Special users might not be associated with an MCHJ
+             }
+         else:
+             # For regular users, get the associated MCHJUser and include the MCHJ ID
+             mchj_user = MCHJUser.objects.filter(user=user).first()
+             if not mchj_user:
+                 return Response({'error': 'MCHJUser topilmadi'}, status=400)
 
-            response_data = {
-                'user_id': user.id,
-                'role_id': user.role.id,
-                'mchj_id': mchj_user.mchj.id
-            }
+             response_data = {
+                 'user_id': user.id,
+                 'role_id': user.role.id,
+                 'mchj_id': mchj_user.mchj.id
+             }
 
-        # Return the response data with a 200 status code
-        return Response(response_data, status=200)
+         # Return the response data with a 200 status code
+         return Response(response_data, status=200)
+# from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+
+
+# class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+#     @classmethod
+#     def get_token(cls, user):
+#         token = super().get_token(user)
+
+#         # Token ichiga qo‘shimcha ma’lumotlar qo‘shish
+#         token['user_id'] = user.id
+#         token['role_id'] = user.role.id if user.role else None
+
+#         # Agar foydalanuvchi MCHJUser bo‘lsa, `mchj_id` ni olish
+#         mchj_user = MCHJUser.objects.filter(user=user).first()
+#         token['mchj_id'] = mchj_user.mchj.id if mchj_user else None
+
+#         return token
+
+# from rest_framework.permissions import AllowAny
+# from rest_framework_simplejwt.tokens import RefreshToken
+
+
+# class LoginView(APIView):
+#     permission_classes = [AllowAny]  # Har qanday foydalanuvchi login qila oladi
+
+#     def post(self, request):
+#         login = request.data.get('login')
+#         password = request.data.get('password')
+
+#         if not login or not password:
+#             return Response({'error': 'Login va parol kiritish majburiy'}, status=400)
+
+#         user = User.objects.filter(login=login).first()
+
+#         if not user or user.password != password:
+#             return Response({'error': 'Login yoki parol noto‘g‘ri'}, status=400)
+
+#         # JWT token yaratish
+#         refresh = RefreshToken.for_user(user)
+
+#         # Token ichiga qo‘shimcha ma’lumotlar qo‘shish
+#         refresh['user_id'] = user.id
+#         refresh['role_id'] = user.role.id if user.role else None
+
+#         mchj_user = MCHJUser.objects.filter(user=user).first()
+#         refresh['mchj_id'] = mchj_user.mchj.id if mchj_user else None
+
+#         access_token = str(refresh.access_token)
+
+#         return Response({
+#             'refresh': str(refresh),
+#             'access': access_token
+#         }, status=200)
+
