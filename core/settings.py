@@ -15,6 +15,7 @@ import os
 from datetime import timedelta
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+AUTH_USER_MODEL = 'app.User'  # `app` sizning Django ilovangiz nomi
 
 
 # Quick-start development settings - unsuitable for production
@@ -41,6 +42,12 @@ REST_FRAMEWORK = {
         'django_filters.rest_framework.DjangoFilterBackend',  # Enables filtering
         'rest_framework.filters.SearchFilter'  # Enables searching
     ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+    # 'DEFAULT_PERMISSION_CLASSES': [
+    #     'rest_framework.permissions.IsAuthenticated',  # Faqat autentifikatsiyadan o'tgan foydalanuvchilar uchun
+    # ],
 }
 # Allowed HTTP methods (standard RESTful methods)
 CORS_ALLOW_METHODS = [
@@ -93,6 +100,7 @@ INSTALLED_APPS = [
     'app',
     'django_filters',
     'django_extensions',
+    'rest_framework_simplejwt'
 ]
 
 MIDDLEWARE = [

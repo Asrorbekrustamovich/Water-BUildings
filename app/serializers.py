@@ -1,7 +1,7 @@
 from rest_framework import serializers
-from .models import Role, User, viloyat, MCHJ, Xodimlar, MCHJUser, Holat, Instrument,Type,Message,Notification
+from .models import Role, User, Viloyat, MCHJ, Xodimlar, MCHJUser, Holat, Instrument,Type,Message,Notification
 from .models import Document
-
+from django.contrib.auth import get_user_model
 class DocumentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Document
@@ -20,11 +20,43 @@ class RoleSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = '__all__'
+        fields = ['id', 'login', 'user_name_or_full_name', 'phone', 'address', 'role', 'is_active', 'password']
+        extra_kwargs = {
+            'password': {'write_only': True}  # Parol faqat yozish mumkin, qaytishda ko‘rinmaydi
+        }
 
+    def create(self, validated_data):
+        """Yangi foydalanuvchi yaratishda parolni shifrlash"""
+        user = User(
+            login=validated_data['login'],
+            user_name_or_full_name=validated_data.get('user_name_or_full_name', ''),
+            phone=validated_data.get('phone', ''),
+            address=validated_data.get('address', ''),
+            role=validated_data.get('role', None),
+        )
+        user.set_password(validated_data['password'])  # Parolni shifrlash
+        user.save()
+        return user
+
+    def update(self, instance, validated_data):
+        """Foydalanuvchini yangilash"""
+        instance.login = validated_data.get('login', instance.login)
+        instance.user_name_or_full_name = validated_data.get('user_name_or_full_name', instance.user_name_or_full_name)
+        instance.phone = validated_data.get('phone', instance.phone)
+        instance.address = validated_data.get('address', instance.address)
+        instance.role = validated_data.get('role', instance.role)
+        instance.is_active = validated_data.get('is_active', instance.is_active)
+
+        # Agar parol o‘zgartirilgan bo‘lsa, shifrlab saqlash
+        if 'password' in validated_data:
+            instance.set_password(validated_data['password'])
+
+        instance.save()
+        return instance
+    
 class ViloyatSerializer(serializers.ModelSerializer):
     class Meta:
-        model = viloyat
+        model = Viloyat
         fields = '__all__'
 
 class MCHJSerializer(serializers.ModelSerializer):

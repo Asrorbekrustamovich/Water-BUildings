@@ -9,22 +9,35 @@ from rest_framework import filters
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import AllowAny
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth import authenticate
+from .models import User, MCHJUser
+
 class RoleListCreateView(generics.ListCreateAPIView):
     queryset = Role.objects.all()
     serializer_class = RoleSerializer
+    permission_classes=[IsAuthenticated]
 class RoleDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Role.objects.all()
     serializer_class = RoleSerializer
+    # permission_classes=[IsAuthenticated]
 class DocumentListCreateView(generics.ListCreateAPIView):
     queryset = Document.objects.all()
     serializer_class = DocumentSerializer
+    # permission_classes=[IsAuthenticated]
 
 class DocumentRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Document.objects.all()
     serializer_class = DocumentSerializer
+    # permission_classes=[IsAuthenticated]
 
 class UserDocumentListView(generics.ListAPIView):
     serializer_class = DocumentSerializer
+    # permission_classes=[IsAuthenticated]
     def get_queryset(self):
         user_id = self.kwargs['user_id']
         return Document.objects.filter(user_id=user_id)
@@ -32,75 +45,87 @@ class UserDocumentListView(generics.ListAPIView):
 class UserListCreateView(generics.ListCreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    # permission_classes=[IsAuthenticated]
 
 class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    # permission_classes=[IsAuthenticated]
 
 class ViloyatListCreateView(generics.ListCreateAPIView):
-    queryset = viloyat.objects.all()
+    queryset = Viloyat.objects.all()
     serializer_class = ViloyatSerializer
+    # permission_classes=[IsAuthenticated]
 
 class ViloyatDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = viloyat.objects.all()
+    queryset = Viloyat.objects.all()
     serializer_class = ViloyatSerializer
+    permission_classes=[IsAuthenticated]
 
 class MCHJListCreateView(generics.ListCreateAPIView):
     queryset = MCHJ.objects.all()
     serializer_class = MCHJSerializer
+    # permission_classes=[IsAuthenticated]
 
 class MCHJDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = MCHJ.objects.all()
     serializer_class = MCHJSerializer
+    # permission_classes=[IsAuthenticated]
 
 class XodimlarListCreateView(generics.ListCreateAPIView):
     queryset = Xodimlar.objects.all()
     serializer_class = XodimlarSerializer
+    # permission_classes=[IsAuthenticated]
 
 class XodimlarDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Xodimlar.objects.all()
     serializer_class = XodimlarSerializer
+    # permission_classes=[IsAuthenticated]
 
 class MCHJUserListCreateView(generics.ListCreateAPIView):
     queryset = MCHJUser.objects.all()
     serializer_class = MCHJUserSerializer
+    # permission_classes=[IsAuthenticated]
 
 class MCHJUserDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = MCHJUser.objects.all()
     serializer_class = MCHJUserSerializer
+    # permission_classes=[IsAuthenticated]
 
 class TypeListCreateView(generics.ListCreateAPIView):
     queryset = Type.objects.all()
     serializer_class = TypeSerializer
+    # permission_classes=[IsAuthenticated]
 
 class TypeDetailView(generics.RetrieveUpdateDestroyAPIView):
      queryset = Type.objects.all()
      serializer_class = TypeSerializer
+    #  permission_classes=[IsAuthenticated]
 
 class HolatListCreateView(generics.ListCreateAPIView):
     queryset = Holat.objects.all()
     serializer_class = HolatSerializer
+    # permission_classes=[IsAuthenticated]
 
 class HolatDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Holat.objects.all()
     serializer_class = HolatSerializer
+    # permission_classes=[IsAuthenticated]
 
 class InstrumentListCreateView(generics.ListCreateAPIView):
     queryset = Instrument.objects.all()
     serializer_class = InstrumentSerializer
+    # permission_classes=[IsAuthenticated]
 
 class InstrumentDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Instrument.objects.all()
     serializer_class = InstrumentSerializer
-from rest_framework import generics
-from rest_framework.response import Response
-from rest_framework.exceptions import ValidationError
-from .models import Message, User
-from .serializers import MessageSerializer
+    # permission_classes=[IsAuthenticated]
 
 class MessageListCreateAPIView(generics.ListCreateAPIView):
     queryset = Message.objects.all()
     serializer_class = MessageSerializer
+    # permission_classes=[IsAuthenticated]
 
     def create(self, request, *args, **kwargs):
         # Get the sender and receiver from the request data
@@ -128,69 +153,66 @@ class MessageListCreateAPIView(generics.ListCreateAPIView):
 class MessageDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Message.objects.all()
     serializer_class = MessageSerializer
+    # permission_classes=[IsAuthenticated]
 
 class MessageDetailView1(generics.RetrieveUpdateDestroyAPIView):
     queryset = Message.objects.all()
     serializer_class = MessageSerializer
+    # permission_classes=[IsAuthenticated]
 
     def get_object(self):
-        # Retrieve the object using the parent class's method
         obj = super().get_object()
-        
-        # Get the role_id from the URL kwargs
         role_id = self.kwargs.get('role_id')
-        
-        # Check if the role_id matches the sender's role_id or any other condition
         if obj.sender.role_id != role_id:
             raise PermissionDenied("You do not have permission to modify this message.")
-        
         return obj
 class NotificationListCreateView(generics.ListCreateAPIView):
     queryset = Notification.objects.all()
     serializer_class = NotificationSerializer
+    # permission_classes=[IsAuthenticated]
 
 
 class NotificationDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Notification.objects.all()
     serializer_class = NotificationSerializer
+    # permission_classes=[IsAuthenticated]
 
 class Get_Instruments_Based_On_MCHJ(generics.ListAPIView):
     serializer_class = InstrumentSerializer
+    # permission_classes=[IsAuthenticated]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
-    filterset_fields = ('type__id',)  # Filter by the 'name' field of the related 'Type' model
+    filterset_fields = ('type__id',)  
     search_fields = [
-        'texnika_turi__istartswith',  # Search by texnika_turi starting with a given letter
-        'rusumi__istartswith',        # Search by rusumi starting with a given letter
-        'zavod_raqami__istartswith',  # Search by zavod_raqami starting with a given letter
-        'davlat_raqami__istartswith', # Search by davlat_raqami starting with a given letter
-        'sana__istartswith',          # Search by sana starting with a given letter
-        'soni__istartswith',          # Search by soni starting with a given letter
-        'mchj__name__istartswith',    # Search by MCHJ name starting with a given letter (if MCHJ has a 'name' field)
-        'type__name__istartswith',    # Search by Type name starting with a given letter (if Type has a 'name' field)
-        'texnik_holati__name__istartswith',  # Search by Texnik holati name starting with a given letter (if Holat has a 'name' field)
+        'texnika_turi__istartswith',  
+        'rusumi__istartswith',        
+        'zavod_raqami__istartswith',  
+        'davlat_raqami__istartswith', 
+        'sana__istartswith',          
+        'soni__istartswith',          
+        'mchj__name__istartswith',    
+        'type__name__istartswith',    
+        'texnik_holati__name__istartswith',  
     ]
 
     def get_queryset(self):
          serializer_class = InstrumentSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
-    filterset_fields = ('type__id',)  # Filter by the 'name' field of the related 'Type' model
+    filterset_fields = ('type__id',)  
     search_fields = [
-        'texnika_turi__istartswith',  # Search by texnika_turi starting with a given letter
-        'rusumi__istartswith',        # Search by rusumi starting with a given letter
-        'zavod_raqami__istartswith',  # Search by zavod_raqami starting with a given letter
-        'davlat_raqami__istartswith', # Search by davlat_raqami starting with a given letter
-        'sana__istartswith',          # Search by sana starting with a given letter
-        'soni__istartswith',          # Search by soni starting with a given letter
-        'mchj__name__istartswith',    # Search by MCHJ name starting with a given letter (if MCHJ has a 'name' field)
-        'type__name__istartswith',    # Search by Type name starting with a given letter (if Type has a 'name' field)
-        'texnik_holati__name__istartswith',  # Search by Texnik holati name starting with a given letter (if Holat has a 'name' field)
+        'texnika_turi__istartswith',  
+        'rusumi__istartswith',        
+        'zavod_raqami__istartswith',  
+        'davlat_raqami__istartswith', 
+        'sana__istartswith',          
+        'soni__istartswith',          
+        'mchj__name__istartswith',    
+        'type__name__istartswith',    
+        'texnik_holati__name__istartswith',  
     ]
 
     def get_queryset(self):
         mchj_id = self.kwargs['mchj_id']
         queryset = Instrument.objects.filter(mchj_id=mchj_id)
-        
-        # Apply additional filtering based on query parameters
         type_id = self.request.query_params.get('type__id', None)
         if type_id:
             queryset = queryset.filter(type__id=type_id)
@@ -220,11 +242,13 @@ class Get_Instruments_Based_On_MCHJ(generics.ListAPIView):
         return queryset
 class Get_MCHJ_based_on_viloyat(generics.ListAPIView):
     serializer_class = MCHJSerializer
+    # permission_classes=[IsAuthenticated]
     def get_queryset(self):
         viloyat_id = self.kwargs['viloyat_id']
         return MCHJ.objects.filter(viloyat=viloyat_id)
 
 class Get_MCHJ_count_and_instruments_count_and_Xodimlar_count_based_on_viloyat(APIView):
+    # permission_classes=[IsAuthenticated]
     def get(self, request, viloyat_id):
         mchj_count = MCHJ.objects.filter(viloyat_id=viloyat_id).count()
         instruments_count = Instrument.objects.filter(mchj__viloyat_id=viloyat_id).count()
@@ -238,6 +262,7 @@ class Get_MCHJ_count_and_instruments_count_and_Xodimlar_count_based_on_viloyat(A
         return Response(response_data, status=200)
 
 class Get_MCHJ_and_counts_based_on_viloyat(APIView):
+    # permission_classes=[IsAuthenticated]
     def get(self, request, viloyat_id):
         mchjs = MCHJ.objects.filter(viloyat_id=viloyat_id)
         data = []
@@ -257,6 +282,7 @@ class Get_MCHJ_and_counts_based_on_viloyat(APIView):
         return Response(data, status=200)
 
 class GetCountsBasedOnMCHJ(APIView):
+    # permission_classes=[IsAuthenticated]
     def get(self, request, mchj_id):
         instruments_count = Instrument.objects.filter(mchj_id=mchj_id).count()
         xodimlar_count = Xodimlar.objects.filter(mchj_id=mchj_id).count()
@@ -269,8 +295,9 @@ class GetCountsBasedOnMCHJ(APIView):
         return Response(response_data, status=200)
     
 class GetAllCountsbasedMCHJ(APIView):
+    # permission_classes=[IsAuthenticated]
     def get(self, request):
-        viloyats = viloyat.objects.all()
+        viloyats = Viloyat.objects.all()
         data = []
 
         for v in viloyats:
@@ -288,6 +315,7 @@ class GetAllCountsbasedMCHJ(APIView):
         return Response(data, status=200)
 
 class GetAllCounts(APIView):
+    # permission_classes=[IsAuthenticated]
     def get(self, request):
         total_mchj_count = MCHJ.objects.count()
         total_instruments_count = Instrument.objects.count()
@@ -298,6 +326,7 @@ class GetAllCounts(APIView):
 
         return Response(response_data, status=200)
 class MarkNotificationAsRead(APIView):
+    # permission_classes=[IsAuthenticated]
     def post(self, request, notification_id):
         try:
             notification = Notification.objects.get(id=notification_id)
@@ -308,18 +337,11 @@ class MarkNotificationAsRead(APIView):
             return Response({'error': 'Notification not found'}, status=404)
 
 
-from rest_framework import generics
-from rest_framework.response import Response
-from rest_framework.exceptions import ValidationError
-from .models import Message, User, MCHJUser
-from .serializers import MessageSerializer
-
 class AdminSendMessageToMCHJView(generics.CreateAPIView):
     queryset = Message.objects.all()
     serializer_class = MessageSerializer
-
+    # permission_classes=[IsAuthenticated]
     def create(self, request, *args, **kwargs):
-        # Static admin user (replace with the actual admin user ID)
         admin_user_id = 1  # Replace with the actual admin user ID
         try:
             sender = User.objects.get(id=admin_user_id)
@@ -347,16 +369,10 @@ class AdminSendMessageToMCHJView(generics.CreateAPIView):
         self.perform_create(serializer)
         return Response(serializer.data, status=201)
 
-from rest_framework import generics
-from rest_framework.response import Response
-from rest_framework.exceptions import ValidationError
-from .models import Message, User, MCHJUser
-from .serializers import MessageSerializer
-
 class MCHJSendMessageToAdminView(generics.CreateAPIView):
     queryset = Message.objects.all()
     serializer_class = MessageSerializer
-
+    # permission_classes=[IsAuthenticated]
     def create(self, request, *args, **kwargs):
         # Static admin user (replace with the actual admin user ID)
         admin_user_id = 1  # Replace with the actual admin user ID
@@ -391,6 +407,7 @@ class MCHJSendMessageToAdminView(generics.CreateAPIView):
 
     
 class GetMessagesBetweenAdminAndMCHJ(APIView):
+    # permission_classes=[IsAuthenticated]
     def get(self, request, *args, **kwargs):
         # Static admin user (replace with the actual admin user ID)
         admin_user_id = 1  # Replace with the actual admin user ID
@@ -410,14 +427,10 @@ class GetMessagesBetweenAdminAndMCHJ(APIView):
         return Response(serializer.data, status=200)
 
 class GetMessagesBetweenAdminAndMCHJ2(APIView):
+    # permission_classes=[IsAuthenticated]
     def get(self, request, *args, **kwargs):
-        # Static admin user (replace with the actual admin user ID)
-        admin_user_id = 1  # Replace with the actual admin user ID
-
-        # Get the receiver's MCHJ ID from the URL
+        admin_user_id = 1 
         mchj_id = self.kwargs['mchj_id']
-
-        # Retrieve messages between the admin and the user bound to the mchj_id
         messages = Message.objects.filter(
             sender_id=admin_user_id, receiver__mchjuser__mchj_id=mchj_id
         ) | Message.objects.filter(
@@ -429,53 +442,35 @@ class GetMessagesBetweenAdminAndMCHJ2(APIView):
         return Response(serializer.data, status=200)
     
 class CountUnreadMessagesForAdminView(APIView):
+    # permission_classes=[IsAuthenticated]
     def get(self, request):
-        # Assuming the admin user has a specific ID (e.g., 1)
-        admin_user_id = 1  # Replace with the actual admin user ID
-
-        # Count unread messages for the admin
+        admin_user_id = 1  
         unread_count = Message.objects.filter(receiver_id=admin_user_id, is_read=False).count()
 
         return Response({"unread_message_count": unread_count}, status=200)
 
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from .models import Message, MCHJUser
 
 class CountUnreadMessagesForMCHJView(APIView):
+    # permission_classes=[IsAuthenticated]
     def get(self, request, mchj_id):
-        # Get the MCHJUser associated with the given mchj_id
         try:
             mchj_user = MCHJUser.objects.get(mchj_id=mchj_id)
         except MCHJUser.DoesNotExist:
             return Response({"error": "MCHJUser not found for the given MCHJ ID"}, status=404)
-
-        # Get the user_id associated with the MCHJUser
         user_id = mchj_user.user_id
-
-        # Count unread messages for this user
         unread_count = Message.objects.filter(receiver_id=user_id, is_read=False).count()
 
         return Response({"unread_message_count": unread_count}, status=200)
-    
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from .models import Message, MCHJUser
 
 class UnreadMessagesForMCHJView(APIView):
+    # permission_classes=[IsAuthenticated]
     def get(self, request):
-        admin_id = 1  # Assuming admin ID is 1
-
-        # Get all unread messages where the receiver is the admin
+        admin_id = 1 
         unread_messages = Message.objects.filter(receiver_id=admin_id, is_read=False)
-
-        # Prepare response data with only message_id and mchj_id
         response_data = []
         for message in unread_messages:
             mchj_user = MCHJUser.objects.filter(user_id=message.sender_id).first()
             mchj_id = mchj_user.mchj_id if mchj_user else None
-
-            # Count unread messages from this MCHJ
             counts = Message.objects.filter(
                 sender_id=message.sender_id,
                 receiver_id=admin_id,
@@ -489,103 +484,48 @@ class UnreadMessagesForMCHJView(APIView):
 
         return Response(response_data, status=200)
 class MCHJUserListView(generics.ListAPIView):
+    # permission_classes=[IsAuthenticated]
     serializer_class = MCHJUserSerializer
 
     def get_queryset(self):
-        # Filter MCHJUser objects where the user's role ID is 34
         queryset = MCHJUser.objects.filter(user__role_id=3).select_related('mchj__viloyat', 'user')
         return queryset 
 
 
 class LoginView(APIView):
-     def post(self, request):
-         # Get login and password from the request data
-         login = request.data.get('login')
-         password = request.data.get('password')
+    permission_classes = [AllowAny]  # Kirish uchun ruxsat berish
 
-         # Check if either login or password is not provided
-         if not login or not password:
-             return Response({'error': 'Login va parol kiritish majburiy'}, status=400)
+    def post(self, request):
+        login = request.data.get('login')
+        password = request.data.get('password')
 
-         # Try to find the user with the provided login and password
-         user = User.objects.filter(login=login, password=password).first()
+        if not login or not password:
+            return Response({'error': 'Login va parol kiritish majburiy'}, status=400)
 
-         # If user is not found, return an error message
-         if not user:
-             return Response({'error': 'Login yoki parol xato'}, status=400)
+        user = authenticate(login=login, password=password)
+        if not user:
+            return Response({'error': 'Login yoki parol noto‘g‘ri'}, status=401)
 
-         # Check if the user has a special role (e.g., user.id == 1 or user.id == 2)
-         if user.id == 1 or user.id == 2:
-             response_data = {
-                 'user_id': user.id,
-                 'role_id': user.role.id,
-                 'mchj_id': 0  # Special users might not be associated with an MCHJ
-             }
-         else:
-             # For regular users, get the associated MCHJUser and include the MCHJ ID
-             mchj_user = MCHJUser.objects.filter(user=user).first()
-             if not mchj_user:
-                 return Response({'error': 'MCHJUser topilmadi'}, status=400)
+        if not user.is_active:
+            return Response({'error': 'Foydalanuvchi bloklangan'}, status=403)
 
-             response_data = {
-                 'user_id': user.id,
-                 'role_id': user.role.id,
-                 'mchj_id': mchj_user.mchj.id
-             }
+        refresh = RefreshToken.for_user(user)
+        access_token = str(refresh.access_token)
 
-         # Return the response data with a 200 status code
-         return Response(response_data, status=200)
-# from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+        # Role 1 yoki 2 bo'lsa, mchj_id = 0
+        mchj_id = 0
+        if user.id not in [1, 2]:  
+            mchj_user = MCHJUser.objects.filter(user=user).first()
+            if not mchj_user:
+                return Response({'error': 'MCHJUser topilmadi'}, status=400)
+            mchj_id = mchj_user.mchj.id  # Agar user MCHJga tegishli bo'lsa, ID ni olish
 
+        response_data = {
+            'user_id': user.id,
+            'role_id': user.role.id if user.role else None,
+            'mchj_id': mchj_id,
+            'access_token': access_token,
+            'refresh_token': str(refresh),
+        }
 
-# class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
-#     @classmethod
-#     def get_token(cls, user):
-#         token = super().get_token(user)
-
-#         # Token ichiga qo‘shimcha ma’lumotlar qo‘shish
-#         token['user_id'] = user.id
-#         token['role_id'] = user.role.id if user.role else None
-
-#         # Agar foydalanuvchi MCHJUser bo‘lsa, `mchj_id` ni olish
-#         mchj_user = MCHJUser.objects.filter(user=user).first()
-#         token['mchj_id'] = mchj_user.mchj.id if mchj_user else None
-
-#         return token
-
-# from rest_framework.permissions import AllowAny
-# from rest_framework_simplejwt.tokens import RefreshToken
-
-
-# class LoginView(APIView):
-#     permission_classes = [AllowAny]  # Har qanday foydalanuvchi login qila oladi
-
-#     def post(self, request):
-#         login = request.data.get('login')
-#         password = request.data.get('password')
-
-#         if not login or not password:
-#             return Response({'error': 'Login va parol kiritish majburiy'}, status=400)
-
-#         user = User.objects.filter(login=login).first()
-
-#         if not user or user.password != password:
-#             return Response({'error': 'Login yoki parol noto‘g‘ri'}, status=400)
-
-#         # JWT token yaratish
-#         refresh = RefreshToken.for_user(user)
-
-#         # Token ichiga qo‘shimcha ma’lumotlar qo‘shish
-#         refresh['user_id'] = user.id
-#         refresh['role_id'] = user.role.id if user.role else None
-
-#         mchj_user = MCHJUser.objects.filter(user=user).first()
-#         refresh['mchj_id'] = mchj_user.mchj.id if mchj_user else None
-
-#         access_token = str(refresh.access_token)
-
-#         return Response({
-#             'refresh': str(refresh),
-#             'access': access_token
-#         }, status=200)
-
+        return Response(response_data, status=200)
