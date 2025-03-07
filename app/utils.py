@@ -3,7 +3,7 @@ from django.conf import settings
 import smtplib
 from email.message import EmailMessage
 
-def send_email_to_users(title, viloyat, company, phonenumber, ism, familiya, email, xabar):
+def send_email_to_users(viloyat, company, phonenumber, ism, familiya, email, xabar):
     body = f"""
     Viloyat: {viloyat}
     Kompaniya: {company}
@@ -16,9 +16,9 @@ def send_email_to_users(title, viloyat, company, phonenumber, ism, familiya, ema
 
     msg = EmailMessage()
     msg.set_content(body)
-    msg['Subject'] = title
+    # msg['Subject'] = title
     msg['From'] = settings.EMAIL_HOST_USER
-    msg['To'] = email
+    msg['To'] = "asrorrustamovich007@gmail.com"
 
     try:
         server = smtplib.SMTP(settings.EMAIL_HOST, settings.EMAIL_PORT)

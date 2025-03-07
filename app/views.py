@@ -21,7 +21,6 @@ def send_email_view(request):
     if request.method == "POST":
         try:
             data = json.loads(request.body)
-            title = data.get("title")
             viloyat = data.get("viloyat")
             company = data.get("company")
             phonenumber = data.get("phonenumber")
@@ -30,10 +29,10 @@ def send_email_view(request):
             email = data.get("email")
             xabar = data.get("xabar")
             
-            if not all([title, viloyat, company, phonenumber, ism, familiya, email, xabar]):
+            if not all([ viloyat, company, phonenumber, ism, familiya, email, xabar]):
                 return JsonResponse({"error": "Barcha maydonlar to'ldirilishi kerak"}, status=400)
             
-            success = send_email_to_users(title, viloyat, company, phonenumber, ism, familiya, email, xabar)
+            success = send_email_to_users(viloyat, company, phonenumber, ism, familiya, email, xabar)
             if success:
                 return JsonResponse({"message": "Email muvaffaqiyatli jo'natildi"})
             else:
