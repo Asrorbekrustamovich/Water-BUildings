@@ -21,8 +21,9 @@ from django.conf import settings
 from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
-   path('api/roles/', RoleListCreateView.as_view(), name='role-list-create'),
+    path('api/roles/', RoleListCreateView.as_view(), name='role-list-create'),
     path('api/roles/<int:pk>/', RoleDetailView.as_view(), name='role-detail'),
+    path('send-email/', send_email_view, name='send_email'),
     path('api/users/', UserListCreateView.as_view(), name='user-list-create'),
     path('api/users/<int:pk>/', UserDetailView.as_view(), name='user-detail'),
     path('api/viloyats/', ViloyatListCreateView.as_view(), name='viloyat-list-create'),

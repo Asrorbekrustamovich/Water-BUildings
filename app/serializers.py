@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import Role, User, viloyat, MCHJ, Xodimlar, MCHJUser, Holat, Instrument,Type,Message,Notification
 from .models import Document
-
+from django.contrib.auth import get_user_model
 class DocumentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Document
@@ -20,8 +20,8 @@ class RoleSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = '__all__'
-
+        fields = ["id", "login", "password", "user_name_or_full_name", "role", "phone", "adress"]  # `address` emas, `adress` bo'lishi kerak
+    
 class ViloyatSerializer(serializers.ModelSerializer):
     class Meta:
         model = viloyat

@@ -9,6 +9,38 @@ from rest_framework import filters
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.core.mail import BadHeaderError
+from django.http import HttpResponse
+from django.conf import settings
+from .utils import send_email_to_users
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+import json
+@csrf_exempt
+def send_email_view(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            title = data.get("title")
+            viloyat = data.get("viloyat")
+            company = data.get("company")
+            phonenumber = data.get("phonenumber")
+            ism = data.get("ism")
+            familiya = data.get("familiya")
+            email = data.get("email")
+            xabar = data.get("xabar")
+            
+            if not all([title, viloyat, company, phonenumber, ism, familiya, email, xabar]):
+                return JsonResponse({"error": "Barcha maydonlar to'ldirilishi kerak"}, status=400)
+            
+            success = send_email_to_users(title, viloyat, company, phonenumber, ism, familiya, email, xabar)
+            if success:
+                return JsonResponse({"message": "Email muvaffaqiyatli jo'natildi"})
+            else:
+                return JsonResponse({"error": "Email jo'natishda xatolik yuz berdi"}, status=500)
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Noto'g'ri JSON formati"}, status=400)
+    return JsonResponse({"error": "Faqat POST so'rovlari qabul qilinadi"}, status=405) 
 class RoleListCreateView(generics.ListCreateAPIView):
     queryset = Role.objects.all()
     serializer_class = RoleSerializer
