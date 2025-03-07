@@ -32,11 +32,11 @@ def send_email_view(request):
             if not all([ viloyat, company, phonenumber, ism, familiya, email, xabar]):
                 return JsonResponse({"error": "Barcha maydonlar to'ldirilishi kerak"}, status=400)
             
-            success = send_email_to_users(viloyat, company, phonenumber, ism, familiya, email, xabar)
+            success = send_email_to_users( viloyat, company, phonenumber, ism, familiya, email, xabar)
             if success:
                 return JsonResponse({"message": "Email muvaffaqiyatli jo'natildi"})
             else:
-                return JsonResponse({"error": "Email jo'natishda xatolik yoki email mavjud emas"}, status=500)
+                return JsonResponse({"error": "Email jo'natishda xatolik yuz berdi yoki email mavjud emas"}, status=500)
         except json.JSONDecodeError:
             return JsonResponse({"error": "Noto'g'ri JSON formati"}, status=400)
     return JsonResponse({"error": "Faqat POST so'rovlari qabul qilinadi"}, status=405) 
