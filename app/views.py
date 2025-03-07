@@ -36,7 +36,7 @@ def send_email_view(request):
             if success:
                 return JsonResponse({"message": "Email muvaffaqiyatli jo'natildi"})
             else:
-                return JsonResponse({"error": "Email jo'natishda xatolik yuz berdi"}, status=500)
+                return JsonResponse({"error": "Email jo'natishda xatolik yoki email mavjud emas"}, status=500)
         except json.JSONDecodeError:
             return JsonResponse({"error": "Noto'g'ri JSON formati"}, status=400)
     return JsonResponse({"error": "Faqat POST so'rovlari qabul qilinadi"}, status=405) 
