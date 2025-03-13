@@ -65,6 +65,7 @@ urlpatterns = [
     path("api/mchj_boshliqlar_raqamlari/",MCHJUserListView.as_view()),
     path('api/documents/', DocumentListCreateView.as_view(), name='document-list-create'),
     path('api/documents/<int:pk>/', DocumentRetrieveUpdateDestroyView.as_view(), name='document-retrieve-update-destroy'),
-    path('api/documents/user/<int:user_id>/', UserDocumentListView.as_view(), name='user-document-list')
+    path('api/documents/user/<int:user_id>/', UserDocumentListView.as_view(), name='user-document-list'),
+    path('api/mchj/<int:mchj_id>/instrument-counts_for_each_type_and_each_condition/', InstrumentCountByConditionView.as_view(), name='instrument-counts'),
     ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
