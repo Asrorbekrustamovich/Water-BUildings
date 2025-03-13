@@ -491,6 +491,40 @@ class MCHJUserListView(generics.ListAPIView):
         queryset = MCHJUser.objects.filter(user__role_id=3).select_related('mchj__viloyat', 'user')
         return queryset 
 
+class InstrumentCountByConditionView(APIView):
+    def get(self, request, *args, **kwargs):
+        mchj_id = kwargs.get('mchj_id')
+        
+        if not mchj_id:
+            return Response({"error": "MCHJ ID is required"}, status=400)
+        
+        try:
+            mchj = MCHJ.objects.get(id=mchj_id)
+        except MCHJ.DoesNotExist:
+            return Response({"error": "MCHJ not found"}, status=404)
+        
+        types = Type.objects.all()
+        holats = Holat.objects.all()
+        
+        result = []
+        
+        for type_obj in types:
+            type_data = {
+                "id": type_obj.id,
+                "name": type_obj.name,
+                "total_count": 0,
+                "holat_counts": {holat.name: 0 for holat in holats}  # Use holat.name instead of holat.id
+            }
+            
+            instruments = Instrument.objects.filter(mchj=mchj, type=type_obj)
+            type_data["total_count"] = instruments.count()
+            
+            for instrument in instruments:
+                type_data["holat_counts"][instrument.texnik_holati.name] += 1  # Use holat.name instead of holat.id
+            
+            result.append(type_data)
+        
+        return Response(result, status=200)
 
 class LoginView(APIView):
     permission_classes = [AllowAny]  # Kirish uchun ruxsat berish
