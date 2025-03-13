@@ -16,6 +16,7 @@ from .utils import send_email_to_users
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 import json
+from rest_framework import status
 @csrf_exempt
 def send_email_view(request):
     if request.method == "POST":
@@ -523,7 +524,7 @@ class MCHJUserListView(generics.ListAPIView):
     serializer_class = MCHJUserSerializer
 
     def get_queryset(self):
-        # Filter MCHJUser objects where the user's role ID is 34
+        # Filter MCHJUser objects where the user's role ID is 3
         queryset = MCHJUser.objects.filter(user__role_id=3).select_related('mchj__viloyat', 'user')
         return queryset 
 
@@ -566,57 +567,38 @@ class LoginView(APIView):
 
          # Return the response data with a 200 status code
          return Response(response_data, status=200)
-# from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-
-
-# class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
-#     @classmethod
-#     def get_token(cls, user):
-#         token = super().get_token(user)
-
-#         # Token ichiga qo‘shimcha ma’lumotlar qo‘shish
-#         token['user_id'] = user.id
-#         token['role_id'] = user.role.id if user.role else None
-
-#         # Agar foydalanuvchi MCHJUser bo‘lsa, `mchj_id` ni olish
-#         mchj_user = MCHJUser.objects.filter(user=user).first()
-#         token['mchj_id'] = mchj_user.mchj.id if mchj_user else None
-
-#         return token
-
-# from rest_framework.permissions import AllowAny
-# from rest_framework_simplejwt.tokens import RefreshToken
-
-
-# class LoginView(APIView):
-#     permission_classes = [AllowAny]  # Har qanday foydalanuvchi login qila oladi
-
-#     def post(self, request):
-#         login = request.data.get('login')
-#         password = request.data.get('password')
-
-#         if not login or not password:
-#             return Response({'error': 'Login va parol kiritish majburiy'}, status=400)
-
-#         user = User.objects.filter(login=login).first()
-
-#         if not user or user.password != password:
-#             return Response({'error': 'Login yoki parol noto‘g‘ri'}, status=400)
-
-#         # JWT token yaratish
-#         refresh = RefreshToken.for_user(user)
-
-#         # Token ichiga qo‘shimcha ma’lumotlar qo‘shish
-#         refresh['user_id'] = user.id
-#         refresh['role_id'] = user.role.id if user.role else None
-
-#         mchj_user = MCHJUser.objects.filter(user=user).first()
-#         refresh['mchj_id'] = mchj_user.mchj.id if mchj_user else None
-
-#         access_token = str(refresh.access_token)
-
-#         return Response({
-#             'refresh': str(refresh),
-#             'access': access_token
-#         }, status=200)
-
+     
+class InstrumentCountByConditionView(APIView):
+    def get(self, request, *args, **kwargs):
+        mchj_id = kwargs.get('mchj_id')
+        
+        if not mchj_id:
+            return Response({"error": "MCHJ ID is required"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            mchj = MCHJ.objects.get(id=mchj_id)
+        except MCHJ.DoesNotExist:
+            return Response({"error": "MCHJ not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+        types = Type.objects.all()
+        holats = Holat.objects.all()
+        
+        result = []
+        
+        for type_obj in types:
+            type_data = {
+                "id": type_obj.id,
+                "name": type_obj.name,
+                "total_count": 0,
+                "holat_counts": {holat.name: 0 for holat in holats}  # Use holat.name instead of holat.id
+            }
+            
+            instruments = Instrument.objects.filter(mchj=mchj, type=type_obj)
+            type_data["total_count"] = instruments.count()
+            
+            for instrument in instruments:
+                type_data["holat_counts"][instrument.texnik_holati.name] += 1  # Use holat.name instead of holat.id
+            
+            result.append(type_data)
+        
+        return Response(result, status=status.HTTP_200_OK)
