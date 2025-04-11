@@ -1,27 +1,40 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, Group, Permission
 from django.utils import timezone
+from django.contrib.auth.models import BaseUserManager
 class Role(models.Model):
     name=models.CharField(max_length=255)
     def __str__(self):
         return self.name
 
-class User(models.Model):
-    login = models.CharField(max_length=255)
-    password = models.CharField(max_length=255)
-    user_name_or_full_name=models.CharField(max_length=255)
-    role=models.ForeignKey(Role,on_delete=models.CASCADE)#direktor, mchj, admin
-    phone=models.CharField(max_length=255,null=True,blank=True)
-    adress=models.CharField(max_length=255,null=True,blank=True)
-    company=models.CharField(max_length=255,null=True,blank=True)
-    founded_year=models.CharField(max_length=255,null=True,blank=True)
-    STR=models.CharField(max_length=255,null=True,blank=True)
-    Licence=models.CharField(max_length=255,null=True,blank=True)
-    Tashkiliy_Huquq_shakli=models.CharField(max_length=255,blank=True,null=True)
-    position=models.CharField(max_length=255,blank=True,null=True)
+class CustomUserManager(BaseUserManager):
+    def create_user(self, username, password=None, **extra_fields):
+        if not username:
+            raise ValueError('The Username must be set')
+        user = self.model(username=username, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, username, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+
+        return self.create_user(username, password, **extra_fields)
+
+class User(AbstractUser):
+    role = models.ForeignKey(Role, on_delete=models.CASCADE, null=True, blank=True)
+    phone = models.CharField(max_length=255, null=True, blank=True)
+    address = models.CharField(max_length=255, null=True, blank=True)
+    company = models.CharField(max_length=255, null=True, blank=True)
+    founded_year = models.CharField(max_length=255, null=True, blank=True)
+    STR = models.CharField(max_length=255, null=True, blank=True)
+    licence = models.CharField(max_length=255, null=True, blank=True)
+    tashkiliy_huquq_shakli = models.CharField(max_length=255, blank=True, null=True)
+    position = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
-        return self.login
+        return self.username  # Comes from AbstractUser
 
 class viloyat(models.Model):
     name = models.CharField(max_length=255)
