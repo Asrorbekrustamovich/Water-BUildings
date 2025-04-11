@@ -13,8 +13,12 @@ class User(models.Model):
     role=models.ForeignKey(Role,on_delete=models.CASCADE)#direktor, mchj, admin
     phone=models.CharField(max_length=255,null=True,blank=True)
     adress=models.CharField(max_length=255,null=True,blank=True)
-    class Meta:
-        db_table = 'users'
+    company=models.CharField(max_length=255,null=True,blank=True)
+    founded_year=models.CharField(max_length=255,null=True,blank=True)
+    STR=models.CharField(max_length=255,null=True,blank=True)
+    Licence=models.CharField(max_length=255,null=True,blank=True)
+    Tashkiliy_Huquq_shakli=models.CharField(max_length=255,blank=True,null=True)
+    position=models.CharField(max_length=255,blank=True,null=True)
 
     def __str__(self):
         return self.login

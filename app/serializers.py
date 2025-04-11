@@ -20,7 +20,7 @@ class RoleSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["id", "login", "password", "user_name_or_full_name", "role", "phone", "adress"]  # `address` emas, `adress` bo'lishi kerak
+        fields = ["id", "login", "password", "user_name_or_full_name", "role", "phone", "adress",'company','founded_year','STR','Licence','Tashkiliy_Huquq_shakli','position']  # `address` emas, `adress` bo'lishi kerak
     
 class ViloyatSerializer(serializers.ModelSerializer):
     class Meta:
