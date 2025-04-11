@@ -41,6 +41,9 @@ REST_FRAMEWORK = {
         'django_filters.rest_framework.DjangoFilterBackend',  # Enables filtering
         'rest_framework.filters.SearchFilter'  # Enables searching
     ],
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.SessionAuthentication',  # default for browsable API or admin
+    )
 }
 # Allowed HTTP methods (standard RESTful methods)
 CORS_ALLOW_METHODS = [
@@ -93,6 +96,7 @@ INSTALLED_APPS = [
     'app',
     'django_filters',
     'django_extensions',
+    ''
 ]
 
 MIDDLEWARE = [
