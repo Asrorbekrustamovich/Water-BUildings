@@ -7,7 +7,15 @@ from django.db import models
 
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
+class Role(models.Model):
+    name = models.CharField(max_length=255)
 
+    class Meta:
+        ordering = ['-id']
+
+    def __str__(self):
+        return self.name
+    
 class UserManager(BaseUserManager):
     def create_user(self, login, password=None, **extra_fields):
         """Create and save a regular user with hashed password"""
@@ -27,20 +35,16 @@ class UserManager(BaseUserManager):
         extra_fields.setdefault("is_superuser", True)
 
         if extra_fields.get('is_staff') is not True:
-            raise ValueError('Superuser must have is_staff=True.')
+         raise ValueError('Superuser must have is_staff=True.')
         if extra_fields.get('is_superuser') is not True:
             raise ValueError('Superuser must have is_superuser=True.')
 
+    # Role tayinlash (agar mavjud bo'lmasa yaratamiz)
+        from .models import Role  # import qilish shart ichkarida
+        role, created = Role.objects.get_or_create(id=1, defaults={"name": "Admin"})
+        extra_fields.setdefault("role", role)
+
         return self.create_user(login, password, **extra_fields)
-    
-class Role(models.Model):
-    name = models.CharField(max_length=255)
-
-    class Meta:
-        ordering = ['-id']
-
-    def __str__(self):
-        return self.name
 
 class User(AbstractUser):
     username = None  # AbstractUser dagi username maydonini olib tashlaymiz
@@ -137,7 +141,7 @@ class Instrument(models.Model):
     rusumi = models.CharField(max_length=255, default='kiritilmagan')
     zavod_raqami = models.CharField(max_length=255, default='kiritilmagan')
     davlat_raqami = models.CharField(max_length=255, default='kiritilmagan')
-    sana = models.DateField(null=False,default=0,blank=False)
+    sana = models.IntegerField(null=False,default=0,blank=False)
     texnik_holati = models.ForeignKey(Holat, on_delete=models.CASCADE,null=False, blank=False)
     soni = models.IntegerField(default=0,null=False, blank=False)
     mexanizmlarning_ishlab_turgan_obyekt_nomi=models.TextField(null=True,blank=True)
