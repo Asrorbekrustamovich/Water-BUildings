@@ -17,6 +17,12 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 import json
 from rest_framework import status
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from .models import User, MCHJUser
+from .utils import get_tokens_for_user  # a
+from django.contrib.auth.hashers import check_password
+
 @csrf_exempt
 def send_email_view(request):
     if request.method == "POST":
@@ -65,16 +71,30 @@ class UserListCreateView(generics.ListCreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
+    def perform_create(self, serializer):
+        password = serializer.validated_data.pop('password', None)
+        user = serializer.save()
+        if password:
+            user.set_password(password)
+            user.save()
+
 class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
+    def perform_update(self, serializer):
+        password = serializer.validated_data.pop('password', None)
+        user = serializer.save()
+        if password:
+            user.set_password(password)
+            user.save()
+
 class ViloyatListCreateView(generics.ListCreateAPIView):
-    queryset = viloyat.objects.all()
+    queryset = Viloyat.objects.all()
     serializer_class = ViloyatSerializer
 
 class ViloyatDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = viloyat.objects.all()
+    queryset = Viloyat.objects.all()
     serializer_class = ViloyatSerializer
 
 class MCHJListCreateView(generics.ListCreateAPIView):
@@ -302,7 +322,7 @@ class GetCountsBasedOnMCHJ(APIView):
     
 class GetAllCountsbasedMCHJ(APIView):
     def get(self, request):
-        viloyats = viloyat.objects.all()
+        viloyats = Viloyat.objects.all()
         data = []
 
         for v in viloyats:
@@ -527,46 +547,6 @@ class MCHJUserListView(generics.ListAPIView):
         # Filter MCHJUser objects where the user's role ID is 3
         queryset = MCHJUser.objects.filter(user__role_id=3).select_related('mchj__viloyat', 'user')
         return queryset 
-
-
-class LoginView(APIView):
-     def post(self, request):
-         # Get login and password from the request data
-         login = request.data.get('login')
-         password = request.data.get('password')
-
-         # Check if either login or password is not provided
-         if not login or not password:
-             return Response({'error': 'Login va parol kiritish majburiy'}, status=400)
-
-         # Try to find the user with the provided login and password
-         user = User.objects.filter(login=login, password=password).first()
-
-         # If user is not found, return an error message
-         if not user:
-             return Response({'error': 'Login yoki parol xato'}, status=400)
-
-         # Check if the user has a special role (e.g., user.id == 1 or user.id == 2)
-         if user.id == 1 or user.id == 2:
-             response_data = {
-                 'user_id': user.id,
-                 'role_id': user.role.id,
-                 'mchj_id': 0  # Special users might not be associated with an MCHJ
-             }
-         else:
-             # For regular users, get the associated MCHJUser and include the MCHJ ID
-             mchj_user = MCHJUser.objects.filter(user=user).first()
-             if not mchj_user:
-                 return Response({'error': 'MCHJUser topilmadi'}, status=400)
-
-             response_data = {
-                 'user_id': user.id,
-                 'role_id': user.role.id,
-                 'mchj_id': mchj_user.mchj.id
-             }
-
-         # Return the response data with a 200 status code
-         return Response(response_data, status=200)
      
 class InstrumentCountByConditionView(APIView):
     def get(self, request, *args, **kwargs):
@@ -602,3 +582,68 @@ class InstrumentCountByConditionView(APIView):
             result.append(type_data)
         
         return Response(result, status=status.HTTP_200_OK)
+
+
+# class LoginView(APIView):
+#      def post(self, request):
+#          # Get login and password from the request data
+#          login = request.data.get('login')
+#          password = request.data.get('password')
+
+#          # Check if either login or password is not provided
+#          if not login or not password:
+#              return Response({'error': 'Login va parol kiritish majburiy'}, status=400)
+
+#          # Try to find the user with the provided login and password
+#          user = User.objects.filter(login=login, password=password).first()
+
+#          # If user is not found, return an error message
+#          if not user:
+#              return Response({'error': 'Login yoki parol xato'}, status=400)
+
+#          # Check if the user has a special role (e.g., user.id == 1 or user.id == 2)
+#          if user.id == 1 or user.id == 2:
+#              response_data = {
+#                  'user_id': user.id,
+#                  'role_id': user.role.id,
+#                  'mchj_id': 0  # Special users might not be associated with an MCHJ
+#              }
+#          else:
+#              # For regular users, get the associated MCHJUser and include the MCHJ ID
+#              mchj_user = MCHJUser.objects.filter(user=user).first()
+#              if not mchj_user:
+#                  return Response({'error': 'MCHJUser topilmadi'}, status=400)
+
+#              response_data = {
+#                  'user_id': user.id,
+#                  'role_id': user.role.id,
+#                  'mchj_id': mchj_user.mchj.id
+#              }
+
+#          # Return the response data with a 200 status code
+#          return Response(response_data, status=200)
+class LoginView(APIView):
+    def post(self, request):
+        login = request.data.get('login')
+        password = request.data.get('password')
+
+        if not login or not password:
+            return Response({'error': 'Login va parol kiritish majburiy'}, status=400)
+
+        try:
+            user = User.objects.get(login=login)
+        except User.DoesNotExist:
+            return Response({'error': 'Login yoki parol xato'}, status=400)
+
+        # Check password using Django's built-in password hashing
+        if not check_password(password, user.password):
+            return Response({'error': 'Login yoki parol xato'}, status=400)
+
+        tokens = get_tokens_for_user(user)
+
+        # Include user information in the response
+        response_data = {
+            **tokens,
+        }
+
+        return Response(response_data, status=200)
